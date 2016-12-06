@@ -1,13 +1,7 @@
 image: biggora/gitlab-zone
-services:
-  - mariadb
-  - mysql
-  - postgres
-  - redis
-  - mongo
-  - rethinkdb
-  - arangodb
-  - neo4j
+# services:
+#  - arangodb
+#  - neo4j
 
 variables:
   MYSQL_USER: "test"
@@ -17,6 +11,9 @@ variables:
   POSTGRES_USER: "test"
   POSTGRES_PASSWORD: "test"
   POSTGRES_DB: "test"
+  ARANGO_ROOT_PASSWORD: "test"
+  ARANGO_NO_AUTH: "1"
+  ARANGO_RANDOM_ROOT_PASSWORD: "0"
 
 before_script:
     - cat /etc/hosts | grep 172
@@ -24,11 +21,83 @@ before_script:
 stages:
     - test
 
-all:
+redis:
+  services:
+      - redis
   stage: test
   script:
-      - npm install --save-dev
-      - make test
+      - npm install bluebird mocha should redis
+      - make test-redis
+  only:
+      - master
+  tags:
+      - node
+
+sqlite:
+  stage: test
+  script:
+      - npm install bluebird mocha should sqlite3
+      - make test-sqlite
+  only:
+      - master
+  tags:
+      - node
+
+mysql:
+  services:
+      - mysql
+  stage: test
+  script:
+      - npm install bluebird mocha should mysql
+      - make test-mysql
+  only:
+      - master
+  tags:
+      - node
+
+postgres:
+  services:
+      - postgres
+  stage: test
+  script:
+      - npm install bluebird mocha should pg
+      - make test-postgres
+  only:
+      - master
+  tags:
+      - node
+
+mongo:
+  services:
+      - mongo
+  stage: test
+  script:
+      - npm install bluebird mocha should mongodb
+      - make test-mongo
+  only:
+      - master
+  tags:
+      - node
+
+arango:
+  services:
+      - arangodb
+  stage: test
+  script:
+      - npm install bluebird mocha should arangojs
+      - make test-arango
+  only:
+      - master
+  tags:
+      - node
+
+rethinkdb:
+  services:
+      - rethinkdb
+  stage: test
+  script:
+      - npm install bluebird mocha should async generic-pool rethinkdb moment
+      - make test-rethinkdb
   only:
       - master
   tags:
